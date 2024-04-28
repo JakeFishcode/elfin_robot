@@ -61,12 +61,12 @@ $ source devel/setup.bash
 
 用Gazebo仿真请运行：
 ```sh
-$ roslaunch elfin_gazebo elfin3_empty_world.launch
+$ roslaunch elfin_gazebo elfin5_empty_world.launch
 ```
 
 运行MoveIt!模块, RViz界面:
 ```sh
-$ roslaunch elfin3_moveit_config moveit_planning_execution.launch
+$ roslaunch elfin5_moveit_config moveit_planning_execution.launch
 ```
 如果你此时不想运行RViz界面，请用以下命令:
 ```sh
@@ -97,7 +97,7 @@ elfin_ethernet_name: eth0
 
 加载Elfin机器人模型：
 ```sh
-$ roslaunch elfin_robot_bringup elfin3_bringup.launch
+$ roslaunch elfin_robot_bringup elfin5_bringup.launch
 ```
 启动Elfin硬件，Elfin的控制需要操作系统的实时性支持，运行下面的命令前请先为你的Linux系统内核打好实时补丁。打补丁的方法可以参考这个[教程](http://www.jianshu.com/p/8787e45a9e01)。Elfin机械臂有两种不同版本的EtherCAT从站，在启动硬件前，请先确认你的Elfin的从站版本。
 ```sh
@@ -117,7 +117,7 @@ $ roslaunch elfin_robot_bringup elfin_ros_control_v3.launch
 
 运行MoveIt!模块, RViz界面:
 ```sh
-$ roslaunch elfin3_moveit_config moveit_planning_execution.launch
+roslaunch elfin5_moveit_config moveit_planning_execution.launch
 ```
 如果你此时不想运行RViz界面，请用以下命令:
 ```sh
@@ -138,3 +138,29 @@ Tips:
 在关闭机械臂电源前，需先按下Elfin Control Panel界面的"Servo Off"给Elfin去使能。
 
 更多关于API的信息请看[docs/API_description.md](docs/API_description.md)
+## Stop Service
+
+``` sh
+sudo systemctl stop  moying-controllers.service
+sudo systemctl stop  moying-core.service
+sudo systemctl stop  moying-elfin.service
+sudo systemctl stop  moying-gripper.service
+sudo systemctl stop  moying-multimaster.service
+sudo systemctl stop  moying-sensors.service
+```
+## Start Effort
+
+```sh
+roslaunch elfin_robot_bringup elfin5_bringup.launch
+roslaunch elfin_robot_bringup elfin_ros_control.launch
+rosservice call /elfin_ros_control/elfin/enable_robot "data: true" 
+rosrun controller_manager controller_manager start elfin_arm_one_joint_controller
+rostopic pub /elfin_arm_one_jointoller/command std_msgs/Float64MultiArray "layout:
+  dim:
+  - label: ''
+    size: 4
+    stride: 16
+  data_offset: 0
+data: [0.00,0.00,0.00,0.00]" 
+
+```
